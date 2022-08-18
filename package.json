@@ -35,8 +35,12 @@
     ],
     "commands": [
       {
-        "command": "what-the-beep.helloWorld",
-        "title": "Hello World"
+        "command": "what-the-beep.play",
+        "title": "What the Beep: Play"
+      },
+      {
+        "command": "what-the-beep.playWithArgs",
+        "title": "What the Beep: Play with args"
       }
     ]
   },
