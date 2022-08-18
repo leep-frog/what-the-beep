@@ -16,6 +16,18 @@ interface AudioCommandArgs {
   file: string;
 }
 
+function playAudioFile(file: string) {
+  vscode.tasks.executeTask(createTask(
+    "audioPlayer",
+    "What the Beep?",
+    {
+      type: "audioPlayer",
+    },
+    vscode.TaskScope.Global,
+    file,
+  ));
+}
+
 function createTask(name: string, source: string, definition: vscode.TaskDefinition, scope: vscode.TaskScope | vscode.WorkspaceFolder, file: string): vscode.Task {
   let pyFile: string = [
     "from playsound import playsound",
@@ -67,20 +79,11 @@ function createTask(name: string, source: string, definition: vscode.TaskDefinit
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('what-the-beep.playWithArgs', (args: AudioCommandArgs) => {
-    vscode.tasks.executeTask(createTask(
-      "audioPlayer",
-      "What the Beep?",
-      {
-        type: "audioPlayer",
-      },
-      vscode.TaskScope.Global,
-      args.file,
-      //"C:\\Users\\gleep\\Desktop\\Coding\\go\\src\\notification\\media\\laser.wav",
-    ));
+    playAudioFile(args.file);
   }));
 
-  context.subscriptions.push(vscode.commands.registerCommand('what-the-beep.play', () => {
-    vscode.window.showOpenDialog({
+  context.subscriptions.push(vscode.commands.registerCommand('what-the-beep.play', async () => {
+    const uris = await vscode.window.showOpenDialog({
       canSelectFiles: true,
       canSelectFolders: false,
       canSelectMany: false,
@@ -89,7 +92,10 @@ export function activate(context: vscode.ExtensionContext) {
         "Audio Files": ["wav", "mp3"],
       },
     });
-    vscode.window.showInformationMessage("nothing");
+    if (!uris || uris.length !== 1) {
+      return;
+    }
+    playAudioFile(uris[0].fsPath);
   }));
 
   context.subscriptions.push(vscode.tasks.registerTaskProvider('audioPlayer', {
