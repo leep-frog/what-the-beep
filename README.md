@@ -1,70 +1,65 @@
-# what-the-beep README
+# what-the-beep
 
-This is the README for your extension "what-the-beep". After writing up a brief description, we recommend including the following sections.
+This extension allows you to play audio files at the click of a button (or via a command).
 
-## Features
+## Setup
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Under the hood, this extension utilizes the [Python playsound](https://pypi.org/project/playsound/) module. Run the following to install it:
 
-For example if there is an image subfolder under your extension project workspace:
+```
+pip3 install playsound
+```
 
-\!\[feature X\]\(images/feature-x.png\)
+## Playing Audio Files
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Static Audio Files
 
-## Requirements
+Audio files are played via VS Code tasks. To play a new
+audio file, simply create a new task in your user tasks file (open the command pallete and search for `Tasks: Open User Tasks`) with the following format:
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+```json
+{
+"version": "2.0.0",
+  "tasks": [
+    {
+      "type": "audioPlayer",
+      "label": "Audio: break.wav",
+      "file": "/absolute/path/to/my/audioFile.wav",
+      "presentation": {
+        "close": true
+      }
+    },
+  ],
+}
+```
 
-## Extension Settings
+The `type` argument must be exactly `audioPlayer` and the `file` value must be an absolute path to your audio file.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+All other fields are not unique to this extension and are outlined [in this VS Code doc](https://code.visualstudio.com/docs/editor/tasks#_custom-tasks).
 
-For example:
+#### Keyboard Shortcut
 
-This extension contributes the following settings:
+These tasks can be executed via keyboard shortcuts:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+```json
+{
+  "key": "alt+b",
+  "command": "workbench.action.tasks.runTask",
+  "args": {
+    "task": "Audio: break.wav",
+    "type": "audioPlayer",
+  },
+},
+```
 
-## Known Issues
+Once again, the `args.type` value must be exactly `audioPlayer`. The `args.task` value must match your task's `label` exactly as well.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+### Dynamic Audio Files
+
+In progress...
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release!
