@@ -15,7 +15,9 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onTaskType:audioPlayer",
+    "onCommand:what-the-beep.play",
+    "onCommand:what-the-beep.playWithArgs"
   ],
   "main": "./out/extension.js",
   "contributes": {
