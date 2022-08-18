@@ -80,6 +80,15 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   context.subscriptions.push(vscode.commands.registerCommand('what-the-beep.play', () => {
+    vscode.window.showOpenDialog({
+      canSelectFiles: true,
+      canSelectFolders: false,
+      canSelectMany: false,
+      openLabel: "Play audio file",
+      filters: {
+        "Audio Files": ["wav", "mp3"],
+      },
+    });
     vscode.window.showInformationMessage("nothing");
   }));
 
