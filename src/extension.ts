@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
-import path = require('path');
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -27,6 +26,8 @@ class WebviewProvider implements vscode.WebviewViewProvider {
   ) { }
 
   beep() {
+    // TODO: treat this as a user interaction somehow?
+    // https://github.com/microsoft/vscode/issues/237030
     this._view?.webview.postMessage({});
   };
 
