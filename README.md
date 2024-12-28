@@ -1,8 +1,10 @@
 # what-the-beep
 
-This extension allows you to play audio files at the click of a button (or via a command).
+TODO
 
-## Setup
+<!-- This extension allows you to play audio files at the click of a button (or via a command). -->
+
+<!-- ## Setup
 
 Under the hood, this extension utilizes the [Python playsound](https://pypi.org/project/playsound/) module. Run the following to install it:
 
@@ -62,4 +64,4 @@ In progress...
 
 ### 0.0.1
 
-Initial release!
+Initial release! -->
