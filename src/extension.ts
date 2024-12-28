@@ -1,127 +1,53 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+import { readFileSync } from 'fs';
 import * as vscode from 'vscode';
+import path = require('path');
 
-interface AudioTaskDefinition extends vscode.TaskDefinition {
-  /**
-   * The audio file to play.
-   */
-  file: string;
-}
 
-interface AudioCommandArgs {
-  /**
-   * The audio file to play.
-   */
-  file: string;
-}
-
-function playAudioFile(file: string) {
-  vscode.tasks.executeTask(createTask(
-    "audioPlayer",
-    "What the Beep?",
-    {
-      type: "audioPlayer",
-    },
-    vscode.TaskScope.Global,
-    file,
-  ));
-}
-
-function createTask(name: string, source: string, definition: vscode.TaskDefinition, scope: vscode.TaskScope | vscode.WorkspaceFolder, file: string): vscode.Task {
-  let pyFile: string = [
-    "from playsound import playsound",
-    "import os",
-    "import sys",
-    "",
-    "p = os.path.abspath(sys.argv[1])",
-    "if not os.path.isfile(p):",
-    "  # TODO: use problem matcher here?",
-    "  print('not a file')",
-    "  exit(0)",
-    "",
-    // See the following answer for why this logic is needed:
-    // https://stackoverflow.com/a/68937955/18162937
-    "if os.name == 'nt':",
-    "  p = p.replace('\\\\', '\\\\\\\\', 1)",
-    "",
-    "playsound(p)",
-  ].join("\n");
-
-  let nt = new vscode.Task(
-    // This must always be the *exact same* definition
-    // from the provided task object.
-    definition,
-    scope,
-    name,
-    source,
-    new vscode.ShellExecution(
-      "audio-player",
-      {
-        executable: "python",
-        shellArgs: [
-          "-c",
-          `"${pyFile}"`,
-          file,
-        ]
-      },
-    ),
-  );
-
-  nt.presentationOptions.reveal = vscode.TaskRevealKind.Never;
-  nt.presentationOptions.showReuseMessage = false;
-  nt.problemMatchers = [];
-
-  return nt;
-}
-
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(vscode.commands.registerCommand('what-the-beep.playWithArgs', (args: AudioCommandArgs) => {
-    playAudioFile(args.file);
-  }));
-
-  context.subscriptions.push(vscode.commands.registerCommand('what-the-beep.play', async () => {
-    const uris = await vscode.window.showOpenDialog({
-      canSelectFiles: true,
-      canSelectFolders: false,
-      canSelectMany: false,
-      openLabel: "Play audio file",
-      filters: {
-        "Audio Files": ["wav", "mp3"],
+  const webviewProvider = new WebviewProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.commands.registerCommand('what-the-beep.beep', () => webviewProvider.beep()),
+    vscode.window.registerWebviewViewProvider(WebviewProvider.viewType, webviewProvider, {
+      webviewOptions: {
+        // This ensures that the widget still runs even when not visible.
+        retainContextWhenHidden: true,
       },
-    });
-    if (!uris || uris.length !== 1) {
-      return;
-    }
-    playAudioFile(uris[0].fsPath);
-  }));
+    }),
+  );
+}
 
-  context.subscriptions.push(vscode.tasks.registerTaskProvider('audioPlayer', {
-    provideTasks: () => {
-      vscode.window.showInformationMessage("Pt");
-      return [
-        new vscode.Task(
-          { type: "audioPlayer" },
-          vscode.TaskScope.Global,
-          "audioPlayer",
-          "What the Beep?",
-          undefined
-        ),
-      ];
-    },
-    resolveTask(_task: vscode.Task): vscode.Task | undefined {
-      const definition: AudioTaskDefinition = <any>_task.definition;
-      return createTask(
-        _task.name,
-        _task.source,
-        definition,
-        _task.scope ?? vscode.TaskScope.Global,
-        definition.file,
-      );
-    }
-  }));
+class WebviewProvider implements vscode.WebviewViewProvider {
+
+  public static readonly viewType = 'what-the-beep';
+
+  private _view?: vscode.WebviewView;
+
+  constructor(
+    private readonly _extensionUri: vscode.Uri,
+  ) { }
+
+  beep() {
+    this._view?.webview.postMessage({});
+  };
+
+  resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, token: vscode.CancellationToken): Thenable<void> | void {
+    this._view = webviewView;
+    this._view.webview.options = {
+      // Allow scripts in the webview
+      enableScripts: true,
+
+      localResourceRoots: [
+        this._extensionUri,
+      ],
+    };
+
+    const successWav = vscode.Uri.joinPath(this._extensionUri, 'media', 'success.wav');
+    const successWavUri = this._view.webview.asWebviewUri(successWav);
+
+    const htmlPath = vscode.Uri.joinPath(this._extensionUri, 'src', 'webview.html').fsPath;
+    const got = readFileSync(htmlPath, 'utf8').replace(/AUDIO_PLACEHOLDER/g, `${successWavUri}`);
+    this._view.webview.html = got;
+  }
 }
 
 // this method is called when your extension is deactivated
