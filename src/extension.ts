@@ -4,6 +4,17 @@ import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
   const webviewProvider = new WebviewProvider(context.extensionUri);
+
+  // TODO: Use hooks like these to fake a user event?
+  // Sometimes seems to work, but other times not
+  // const activateHelpers = [
+  //   vscode.window.onDidChangeTextEditorSelection(() => {
+  //     vscode.window.showInformationMessage(`YUP`);
+  //     vscode.commands.executeCommand('what-the-beep.beep');
+  //   }),
+  // ];
+
+
   context.subscriptions.push(
     vscode.commands.registerCommand('what-the-beep.beep', () => webviewProvider.beep()),
     vscode.window.registerWebviewViewProvider(WebviewProvider.viewType, webviewProvider, {
@@ -25,10 +36,14 @@ class WebviewProvider implements vscode.WebviewViewProvider {
     private readonly _extensionUri: vscode.Uri,
   ) { }
 
-  beep() {
+  async beep() {
     // TODO: treat this as a user interaction somehow?
     // https://github.com/microsoft/vscode/issues/237030
-    this._view?.webview.postMessage({});
+    if (!this._view) {
+      vscode.window.showErrorMessage(`What The Beep panel hasn't finished loading. Open the Explorer tab and click the checkbox to activate.`);
+      return;
+    }
+    this._view.webview.postMessage({});
   };
 
   resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, token: vscode.CancellationToken): Thenable<void> | void {
@@ -37,6 +52,7 @@ class WebviewProvider implements vscode.WebviewViewProvider {
       // Allow scripts in the webview
       enableScripts: true,
 
+      // Allows webview html to access relevant audio files.
       localResourceRoots: [
         this._extensionUri,
       ],
@@ -48,6 +64,15 @@ class WebviewProvider implements vscode.WebviewViewProvider {
     const htmlPath = vscode.Uri.joinPath(this._extensionUri, 'src', 'webview.html').fsPath;
     const got = readFileSync(htmlPath, 'utf8').replace(/AUDIO_PLACEHOLDER/g, `${successWavUri}`);
     this._view.webview.html = got;
+
+    let showOnce = true;
+    this._view.webview.onDidReceiveMessage(() => {
+      vscode.window.showErrorMessage(`The webview that generates the audio may not have been created or enabled. Click the checkbox in the What The Beep pane in the Explorer tab to activate (or wait a few seconds for activation to complete). `);
+      if (showOnce) {
+        showOnce = false;
+        this._view?.show();
+      }
+    });
   }
 }
 
