@@ -80,8 +80,13 @@
 
     <script>
       const vscode = acquireVsCodeApi();
-      const checkboxInput= document.getElementById(`checkboxInput`);
-      const checkboxContainer= document.getElementById(`checkboxContainer`);
+      const checkboxInput = document.getElementById(`checkboxInput`);
+      const checkboxContainer = document.getElementById(`checkboxContainer`);
+
+      // Unlock audio context with a user gesture
+      // document.body.addEventListener('click', () => {
+
+      // });
 
       function markActivated() {
         checkboxInput.onclick = "return false;";
@@ -92,11 +97,22 @@
       }
 
       window.addEventListener('message', async (event) => {
-        const audio = new Audio('AUDIO_PLACEHOLDER');
+        console.log(`Received message: ${event.data.uri}`);
+
+        const audio = new Audio(event.data.uri);
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(audioContext.destination);
+
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+
+        // Play audio even if this isn't activated by a user gesture
         audio.play().then(
           // Success case
           _ => {
-            console.log('Audio played');
+            console.log(`Audio played: ${event.data.uri}`);
             markActivated();
           },
           // Failure case
