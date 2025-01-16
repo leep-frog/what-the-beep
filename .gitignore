@@ -1,4 +1,5 @@
 out
+bundled-out/
 dist
 node_modules
 .vscode-test/
