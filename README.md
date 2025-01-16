@@ -1,67 +1,66 @@
-# what-the-beep
+# What The Beep?!
 
-TODO
+This extension provides the capability to play an audio file on registered key
+presses or, more notably, as a notification mechanism with VS Code tooling.
 
-<!-- This extension allows you to play audio files at the click of a button (or via a command). -->
+## Supported Audio Files
 
-<!-- ## Setup
+This extension uses the [NodeJS sound-play](https://www.npmjs.com/package/sound-play)
+package under the hood and, therefore, supports all audio extensions supported
+by that library.
 
-Under the hood, this extension utilizes the [Python playsound](https://pypi.org/project/playsound/) module. Run the following to install it:
+Currently, it supports `.mp3`, `.wav`, and other extension files (depending on OS type).
 
-```
-pip3 install playsound
-```
+Only Windows and Mac OS are currently supported.
 
-## Playing Audio Files
+## Usage
 
-### Static Audio Files
+### Beep via Keybinding
 
-Audio files are played via VS Code tasks. To play a new
-audio file, simply create a new task in your user tasks file (open the command pallete and search for `Tasks: Open User Tasks`) with the following format:
+See the below `keybindings.json` file for example usage:
 
 ```json
 {
-"version": "2.0.0",
-  "tasks": [
-    {
-      "type": "audioPlayer",
-      "label": "Audio: break.wav",
-      "file": "/absolute/path/to/my/audioFile.wav",
-      "presentation": {
-        "close": true
-      }
+  // Make a beep sound
+  {
+    "command": "what-the-beep.beep",
+    "key": "ctrl+shift+b"
+  },
+
+  // Play a specific audio file
+  {
+    "command": "what-the-beep.beep",
+    "args": {
+      "file": "/path/to/your/file.wav",
     },
-  ],
+    "key": "...",
+  },
+
+  // Play a builtin sound
+  {
+    "command": "what-the-beep.beep",
+    "args": {
+      // This can be one of break, error, laser, success, warning
+      "builtin": "laser",
+    },
+    "key": "...",
+  },
 }
 ```
 
-The `type` argument must be exactly `audioPlayer` and the `file` value must be an absolute path to your audio file.
+### Beep via Automated Processes
 
-All other fields are not unique to this extension and are outlined [in this VS Code doc](https://code.visualstudio.com/docs/editor/tasks#_custom-tasks).
+Simply use the provided command in your workflow or other extension logic
+to play these audio files:
 
-#### Keyboard Shortcut
+```typescript
+// Play a built-in audio sound
+vscode.commands.executeCommand(`what-the-beep.beep`, {
+  builtin: 'error',
+});
 
-These tasks can be executed via keyboard shortcuts:
-
-```json
-{
-  "key": "alt+b",
-  "command": "workbench.action.tasks.runTask",
-  "args": {
-    "task": "Audio: break.wav",
-    "type": "audioPlayer",
-  },
-},
+// Play a provided audio file
+vscode.commands.executeCommand(`what-the-beep.beep`, {
+  file: '/path/to/file.mp3'
+});
 ```
-
-Once again, the `args.type` value must be exactly `audioPlayer`. The `args.task` value must match your task's `label` exactly as well.
-
-### Dynamic Audio Files
-
-In progress...
-
-## Release Notes
-
-### 0.0.1
-
-Initial release! -->

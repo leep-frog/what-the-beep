@@ -1,9 +1,9 @@
 {
   "name": "what-the-beep",
-  "displayName": "What the beep?",
+  "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.81.0"
   },
@@ -24,7 +24,7 @@
     "commands": [
       {
         "command": "what-the-beep.beep",
-        "title": "What the Beep: Beep"
+        "title": "What The Beep?!: Beep"
       }
     ]
   },
