@@ -72,6 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
+      if (process.env.TEST_MODE) {
+        vscode.window.showInformationMessage(`Playing audio file: ${filepath}`);
+      }
+
       try {
         await sound.play(filepath).then(
           undefined,

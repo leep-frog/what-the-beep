@@ -8,9 +8,9 @@ export default defineConfig({
   //   fromPath: path.resolve(".vscode-test", "vscode-win32-x64-archive-1.86.0", "Code.exe"),
   // },
   // workspaceFolder: path.resolve("src", "test", "test-workspace"),
-  // env: {
-  //   TEST_MODE: true,
-  // },
+  env: {
+    TEST_MODE: true,
+  },
   mocha: {
     timeout: 60000,
   },

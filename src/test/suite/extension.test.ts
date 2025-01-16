@@ -9,6 +9,10 @@ function mediaFile(filename: string): string {
   return path.resolve(__dirname, '..', '..', '..', 'src', 'test', 'media', filename);
 }
 
+function builtinFile(beep: string): string {
+  return path.resolve(__dirname, '..', '..', '..', 'media', `${beep}.wav`).replace("C:\\", "c:\\");
+}
+
 interface TestCase extends SimpleTestCaseProps {
   name: string;
 }
@@ -19,6 +23,11 @@ const testCases: TestCase[] = [
     userInteractions: [
       cmd('what-the-beep.beep'),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('success')}`,
+      ],
+    },
   },
   {
     name: "Works with provided wav file",
@@ -27,6 +36,11 @@ const testCases: TestCase[] = [
         file: mediaFile('success.wav'),
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${mediaFile('success.wav')}`,
+      ],
+    },
   },
   {
     name: "Works with provided mp3 file",
@@ -35,6 +49,11 @@ const testCases: TestCase[] = [
         file: mediaFile('success.mp3'),
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${mediaFile('success.mp3')}`,
+      ],
+    },
   },
   // Builtin tests
   {
@@ -44,6 +63,11 @@ const testCases: TestCase[] = [
         builtin: 'success',
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('success')}`,
+      ],
+    },
   },
   {
     name: "Plays warning sound",
@@ -52,6 +76,11 @@ const testCases: TestCase[] = [
         builtin: 'warning',
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('warning')}`,
+      ],
+    },
   },
   {
     name: "Plays error sound",
@@ -60,6 +89,11 @@ const testCases: TestCase[] = [
         builtin: 'error',
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('error')}`,
+      ],
+    },
   },
   {
     name: "Plays break sound",
@@ -68,6 +102,11 @@ const testCases: TestCase[] = [
         builtin: 'break',
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('break')}`,
+      ],
+    },
   },
   {
     name: "Plays laser sound",
@@ -76,6 +115,11 @@ const testCases: TestCase[] = [
         builtin: 'laser',
       }),
     ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('laser')}`,
+      ],
+    },
   },
   // Failure tests
   {
