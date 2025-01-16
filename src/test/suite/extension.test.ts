@@ -36,7 +36,75 @@ const testCases: TestCase[] = [
       }),
     ],
   },
-  // Failure cases
+  // Builtin tests
+  {
+    name: "Plays success sound",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        builtin: 'success',
+      }),
+    ],
+  },
+  {
+    name: "Plays warning sound",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        builtin: 'warning',
+      }),
+    ],
+  },
+  {
+    name: "Plays error sound",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        builtin: 'error',
+      }),
+    ],
+  },
+  {
+    name: "Plays break sound",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        builtin: 'break',
+      }),
+    ],
+  },
+  {
+    name: "Plays laser sound",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        builtin: 'laser',
+      }),
+    ],
+  },
+  // Failure tests
+  {
+    name: "Fails if file and builtin provided",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        file: mediaFile('idk.wav'),
+        builtin: 'uhh',
+      }),
+    ],
+    errorMessage: {
+      expectedMessages: [
+        `BeepArgs cannot have both 'builtin' and 'file' properties set`,
+      ],
+    },
+  },
+  {
+    name: "Fails if unknown builtin",
+    userInteractions: [
+      cmd('what-the-beep.beep', {
+        builtin: 'uhh',
+      }),
+    ],
+    errorMessage: {
+      expectedMessages: [
+        `Unknown builtin sound: uhh; must be one of: break,error,laser,success,warning`,
+      ],
+    },
+  },
   {
     name: "Fails if file does not exist",
     userInteractions: [
