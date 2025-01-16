@@ -25,6 +25,10 @@
       {
         "command": "what-the-beep.beep",
         "title": "What The Beep?!: Beep"
+      },
+      {
+        "command": "what-the-beep.wrap",
+        "title": "What The Beep?!: Wrap"
       }
     ]
   },

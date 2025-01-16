@@ -18,6 +18,7 @@ interface TestCase extends SimpleTestCaseProps {
 }
 
 const testCases: TestCase[] = [
+  // Beep success tests
   {
     name: "Works if no file provided",
     userInteractions: [
@@ -55,7 +56,7 @@ const testCases: TestCase[] = [
       ],
     },
   },
-  // Builtin tests
+  // Beep builtin tests
   {
     name: "Plays success sound",
     userInteractions: [
@@ -121,7 +122,7 @@ const testCases: TestCase[] = [
       ],
     },
   },
-  // Failure tests
+  // Beep failure tests
   {
     name: "Fails if file and builtin provided",
     userInteractions: [
@@ -173,6 +174,81 @@ const testCases: TestCase[] = [
     errorMessage: {
       expectedMessages: [
         "Audio file path must not contain single or double quote characters",
+      ],
+    },
+  },
+  // Wrap tests
+  {
+    name: "Plays error beep on failure",
+    userInteractions: [
+      cmd('what-the-beep.wrap', {
+        command: 'idkCommand',
+      }),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('error')}`,
+      ],
+    },
+  },
+  {
+    name: "Plays custom beep on failure",
+    userInteractions: [
+      cmd('what-the-beep.wrap', {
+        command: 'idkCommand',
+        onFailure: {
+          file: builtinFile('warning'),
+        },
+      }),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('warning')}`,
+      ],
+    },
+  },
+  {
+    name: "Fails if command throws and onFailure throws",
+    userInteractions: [
+      cmd('what-the-beep.wrap', {
+        command: 'idkCommand',
+        onFailure: {
+          builtin: 'badBuiltin',
+        },
+      }),
+    ],
+    errorMessage: {
+      expectedMessages: [
+        `Unknown builtin sound: badBuiltin; must be one of: break,error,laser,success,warning`,
+      ],
+    },
+  },
+  {
+    name: "Plays success beep on success",
+    userInteractions: [
+      cmd('what-the-beep.wrap', {
+        command: 'noop',
+      }),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${builtinFile('success')}`,
+      ],
+    },
+  },
+  {
+    name: "Plays custom beep on success",
+    userInteractions: [
+      cmd('what-the-beep.wrap', {
+        command: 'noop',
+        onSuccess: {
+          file: mediaFile('success.mp3'),
+        },
+      }),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        `Playing audio file: ${mediaFile('success.mp3')}`,
       ],
     },
   },

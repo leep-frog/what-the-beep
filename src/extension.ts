@@ -17,6 +17,13 @@ export interface BeepArgs {
   builtin?: BuiltinBeep;
 }
 
+export interface WrapArgs {
+  command: string,
+  onSuccess?: BeepArgs;
+  onFailure?: BeepArgs;
+  args?: any[],
+}
+
 function getBeepFile(context: vscode.ExtensionContext, args?: BeepArgs) {
   if (args?.builtin && args.file) {
     vscode.window.showErrorMessage(`BeepArgs cannot have both 'builtin' and 'file' properties set`);
@@ -62,33 +69,42 @@ function getBeepFile(context: vscode.ExtensionContext, args?: BeepArgs) {
   return vscode.Uri.joinPath(context.extensionUri, 'media', `${builtinEnum}.wav`).fsPath;
 }
 
+async function beep(context: vscode.ExtensionContext, args?: BeepArgs) {
+  const filepath = getBeepFile(context, args);
+  if (!filepath) {
+    return;
+  }
+
+  if (process.env.TEST_MODE) {
+    vscode.window.showInformationMessage(`Playing audio file: ${filepath}`);
+  }
+
+  try {
+    await sound.play(filepath).then(
+      undefined,
+      (error: any) => {
+        vscode.window.showErrorMessage(`Failed to play audio file: ${error}`);
+      }
+    );
+  } catch (error) {
+    vscode.window.showErrorMessage(`Unexpected audio file error: ${error}`);
+  }
+
+  console.log(`[What-the-beep] Successfully played audio file ${filepath}`);
+}
+
+async function wrap(context: vscode.ExtensionContext, args: WrapArgs) {
+  await vscode.commands.executeCommand(args.command, ...(args.args || [])).then(
+    async () => beep(context, args.onSuccess ?? { builtin: BuiltinBeep.SUCCESS }),
+    async () => beep(context, args.onFailure ?? { builtin: BuiltinBeep.ERROR }),
+  );
+}
+
 export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('what-the-beep.beep', async (args?: BeepArgs) => {
-
-      const filepath = getBeepFile(context, args);
-      if (!filepath) {
-        return;
-      }
-
-      if (process.env.TEST_MODE) {
-        vscode.window.showInformationMessage(`Playing audio file: ${filepath}`);
-      }
-
-      try {
-        await sound.play(filepath).then(
-          undefined,
-          (error: any) => {
-            vscode.window.showErrorMessage(`Failed to play audio file: ${error}`);
-          }
-        );
-      } catch (error) {
-        vscode.window.showErrorMessage(`Unexpected audio file error: ${error}`);
-      }
-
-      console.log(`[What-the-beep] Successfully played audio file ${filepath}`);
-    }),
+    vscode.commands.registerCommand('what-the-beep.beep', async (args?: BeepArgs) => beep(context, args)),
+    vscode.commands.registerCommand('what-the-beep.wrap', async (args: WrapArgs) => wrap(context, args)),
   );
 }
 
