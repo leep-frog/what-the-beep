@@ -1,0 +1,2 @@
+Simple file needed so the src/test/test-workspace/.vscode directory
+is always present when pulling this repo.

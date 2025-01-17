@@ -270,13 +270,29 @@ const testCases: TestCase[] = [
     },
   },
 
-  /*************************
-   * Terminal Action Tests *
-   *************************/
+  ///////////////////////////
+  // Terminal Action Tests //
+  ///////////////////////////
 
   // Action tests
   {
-    name: "[TerminalAction] Notifies",
+    name: "[TerminalAction] Default beeps if no actions provided",
+    settings: wtbSettings([
+      {},
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    expectTerminalTrigger: true,
+    informationMessage: {
+      expectedMessages: [
+        `Played audio file: ${builtinFile('success')}`,
+      ],
+    },
+  },
+  {
+    name: "[TerminalAction] Notifies with default severity",
     settings: wtbSettings([
       {
         notification: {
@@ -291,6 +307,90 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hi",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] Notifies with info severity",
+    settings: wtbSettings([
+      {
+        notification: {
+          message: "hi",
+          severity: NotificationSeverity.INFO,
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        "hi",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] Notifies with warning severity",
+    settings: wtbSettings([
+      {
+        notification: {
+          message: "hi",
+          severity: NotificationSeverity.WARNING,
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    warningMessage: {
+      expectedMessages: [
+        "hi",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] Notifies with error severity",
+    settings: wtbSettings([
+      {
+        notification: {
+          message: "hi",
+          severity: NotificationSeverity.ERROR,
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    errorMessage: {
+      expectedMessages: [
+        "hi",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] Notify fails if unknown severity",
+    settings: wtbSettings([
+      {
+        notification: {
+          message: "hi",
+          severity: ("debug" as NotificationSeverity),
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    errorMessage: {
+      expectedMessages: [
+        'Unknown notification severity: debug',
       ],
     },
     expectTerminalTrigger: true,
@@ -338,6 +438,59 @@ const testCases: TestCase[] = [
     expectTerminalTrigger: true,
   },
   {
+    name: "[TerminalAction] Fails if args provided but no command, and error beeps",
+    settings: wtbSettings([
+      {
+        args: {
+          abc: "def",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    expectTerminalTrigger: true,
+    informationMessage: {
+      expectedMessages: [
+        `Played audio file: ${builtinFile('error')}`,
+      ],
+    },
+    errorMessage: {
+      expectedMessages: [
+        'what-the-beep.terminalAction.args was provided, but no what-the-beep.terminalAction.command was!',
+      ],
+    }
+  },
+  {
+    name: "[TerminalAction] Fails if args provided but no command, and no error beep if previous action was run",
+    settings: wtbSettings([
+      {
+        notification: {
+          message: "hi",
+        },
+        args: {
+          abc: "def",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    expectTerminalTrigger: true,
+    informationMessage: {
+      expectedMessages: [
+        `hi`,
+      ],
+    },
+    errorMessage: {
+      expectedMessages: [
+        'what-the-beep.terminalAction.args was provided, but no what-the-beep.terminalAction.command was!',
+      ],
+    }
+  },
+  {
     name: "[TerminalAction] Notifies, desktop notifies, and beeps",
     settings: wtbSettings([
       {
@@ -374,6 +527,27 @@ const testCases: TestCase[] = [
   },
 
   // Trigger tests
+  {
+    name: "[TerminalAction] Default beeps if no action, but trigger provided",
+    settings: wtbSettings([
+      {
+        trigger: {
+          commandLineRegex: "# beep$",
+          exitCode: 0,
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello # beep\n"),
+    ],
+    expectTerminalTrigger: true,
+    informationMessage: {
+      expectedMessages: [
+        `Played audio file: ${builtinFile('success')}`,
+      ],
+    },
+  },
   {
     name: "[TerminalAction] Always triggers if undefined trigger",
     settings: wtbSettings([

@@ -163,8 +163,6 @@ function triggerMatches(event: vscode.TerminalShellExecutionEndEvent, trigger?: 
   }
 
   if (trigger.exitCode !== undefined) {
-
-    console.log(`TRIGGER EXIT CODE: ${trigger.exitCode} GOT EXIT CODE: ${event.exitCode}`);
     if (trigger.exitCode === -1) {
       if (event.exitCode === 0) {
         return false;
@@ -179,8 +177,11 @@ function triggerMatches(event: vscode.TerminalShellExecutionEndEvent, trigger?: 
 
 async function runTerminalAction(context: vscode.ExtensionContext, terminalAction: TerminalAction, logoPath: string) {
 
+  let actionRun = false;
+
   // Run the alert first as the `await beep` can potentially take a while (if we ever await either of these)
   if (terminalAction.notification) {
+    actionRun = true;
     switch (terminalAction.notification.severity) {
       case NotificationSeverity.INFO:
       case undefined:
@@ -199,6 +200,7 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
   }
 
   if (terminalAction.desktopNotification) {
+    actionRun = true;
 
     if (process.env.TEST_MODE) {
       vscode.window.showInformationMessage(`Desktop Notification: title=${terminalAction.desktopNotification.title}; message=${terminalAction.desktopNotification.message}`);
@@ -212,9 +214,20 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
   }
 
   if (terminalAction.command) {
+    actionRun = true;
     await vscode.commands.executeCommand(terminalAction.command, terminalAction.args);
   } else if (terminalAction.args) {
     vscode.window.showErrorMessage(`what-the-beep.terminalAction.args was provided, but no what-the-beep.terminalAction.command was!`);
+    if (!actionRun) {
+      actionRun = true;
+      await beep(context, {
+        builtin: BuiltinBeep.ERROR,
+      });
+    }
+  }
+
+  if (!actionRun) {
+    await beep(context);
   }
 }
 
