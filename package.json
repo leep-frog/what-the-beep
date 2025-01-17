@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"
@@ -16,7 +16,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onTaskType:audioPlayer",
+    "onStartupFinished",
     "onCommand:what-the-beep.play",
     "onCommand:what-the-beep.playWithArgs"
   ],
