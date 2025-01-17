@@ -4,8 +4,6 @@ import * as vscode from 'vscode';
 import { NotificationSeverity, TerminalAction } from '../../extension';
 import path = require('path');
 
-const MAX_WAIT = 5000;
-
 function mediaFile(filename: string): string {
   return path.resolve(__dirname, '..', '..', '..', 'src', 'test', 'media', filename);
 }
@@ -657,29 +655,34 @@ suite('Extension Test Suite', () => {
         ...(tc.userInteractions || []),
       ];
 
-      // Logic to wait for messages
-      let gotTriggerNotification = false;
-      vscode.window.showInformationMessage = async (msg: string) => {
-        gotTriggerNotification ||= (msg === TRIGGER_DONE_NOTIFICATION);
-        return oldInfo(msg);
-      };
-
       // If relevant, wait for the terminal trigger to complete.
       // This logic is needed (instead of relying on user interaction awaits) because
       // the onDidEndTerminalShellExecution event is handled in the background.
       if (tc.expectTerminalTrigger) {
+        const triggerDoneNotification = `Terminal trigger execution completed`;
+
+        // Wrap the notification method to ensure it works
+        let gotTriggerNotification = false;
+        vscode.window.showInformationMessage = async (msg: string) => {
+          gotTriggerNotification ||= (msg === triggerDoneNotification);
+          return oldInfo(msg);
+        };
+
+        // Verify that we get the expected notification message
         if (!tc.informationMessage) {
           tc.informationMessage = {};
         }
         if (!tc.informationMessage.expectedMessages) {
           tc.informationMessage.expectedMessages = [];
         }
-        tc.informationMessage.expectedMessages.push(`Terminal trigger execution completed`);
+        tc.informationMessage.expectedMessages.push(triggerDoneNotification);
 
+        // Wait until the notification message is received
+        const maxWait = 5000;
         const msDelay = 50;
         tc.userInteractions.push(new Waiter(msDelay, () => {
           return gotTriggerNotification;
-        }, MAX_WAIT / msDelay));
+        }, maxWait / msDelay));
       }
 
       // Run the test
