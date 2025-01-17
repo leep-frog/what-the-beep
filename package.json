@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"
@@ -20,7 +20,7 @@
     "onCommand:what-the-beep.play",
     "onCommand:what-the-beep.playWithArgs"
   ],
-  "main": "./out/extension.js",
+  "main": "./bundled-out/extension.js",
   "contributes": {
     "commands": [
       {
