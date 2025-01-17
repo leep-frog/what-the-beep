@@ -6,8 +6,6 @@ import path = require('path');
 
 const MAX_WAIT = 5000;
 
-const TRIGGER_DONE_NOTIFICATION = `Terminal trigger execution completed`;
-
 function mediaFile(filename: string): string {
   return path.resolve(__dirname, '..', '..', '..', 'src', 'test', 'media', filename);
 }
@@ -24,6 +22,7 @@ function builtinFile(beep: string): string {
 
 interface TestCase extends SimpleTestCaseProps {
   name: string;
+  expectTerminalTrigger?: boolean;
   settings?: any;
 }
 
@@ -294,9 +293,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hi",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] Beeps",
@@ -315,9 +314,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         `Played audio file: ${mediaFile('success.mp3')}`,
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] Notifies and beeps",
@@ -340,9 +339,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         `Played audio file: ${mediaFile('success.mp3')}`,
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
     warningMessage: {
       expectedMessages: [
         "hi",
@@ -367,9 +366,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hi",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] Always triggers if empty trigger",
@@ -388,9 +387,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hi",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   // commandLineRegex
   {
@@ -412,9 +411,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hello there",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] Does not trigger if commandLineRegex does not match",
@@ -434,9 +433,9 @@ const testCases: TestCase[] = [
     ],
     informationMessage: {
       expectedMessages: [
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   // exitCode
   {
@@ -456,9 +455,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hello there",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: undefined] Triggers on failure",
@@ -477,9 +476,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hello there",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: -1] Does not trigger on success",
@@ -499,9 +498,9 @@ const testCases: TestCase[] = [
     ],
     informationMessage: {
       expectedMessages: [
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: -1] Triggers on failure",
@@ -522,9 +521,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hello there",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: 0] Triggers on success",
@@ -545,9 +544,9 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hello there",
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: 0] Does not trigger on failure",
@@ -567,9 +566,9 @@ const testCases: TestCase[] = [
     ],
     informationMessage: {
       expectedMessages: [
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: {positive number}] Does not trigger on success",
@@ -589,9 +588,9 @@ const testCases: TestCase[] = [
     ],
     informationMessage: {
       expectedMessages: [
-        TRIGGER_DONE_NOTIFICATION,
       ],
     },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: {positive number}] Does not trigger on failure with other exit code",
@@ -611,9 +610,9 @@ const testCases: TestCase[] = [
     ],
     informationMessage: {
       expectedMessages: [
-        TRIGGER_DONE_NOTIFICATION,
       ],
-    }
+    },
+    expectTerminalTrigger: true,
   },
   {
     name: "[TerminalAction] [ExitCode: {positive number}] Triggers on failure with identical exit code",
@@ -634,17 +633,15 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         "hello there",
-        TRIGGER_DONE_NOTIFICATION,
       ],
-    }
+    },
+    expectTerminalTrigger: true,
   },
 ];
 
 suite('Extension Test Suite', () => {
 
   const oldInfo = vscode.window.showInformationMessage;
-  const oldWarn = vscode.window.showWarningMessage;
-  const oldErr = vscode.window.showErrorMessage;
 
   testCases.forEach((tc, idx) => {
     test(tc.name, async () => {
@@ -661,35 +658,27 @@ suite('Extension Test Suite', () => {
       ];
 
       // Logic to wait for messages
-      const gotMessages: string[] = [];
-
-      // Wrap messages methods to add to gotMessages
+      let gotTriggerNotification = false;
       vscode.window.showInformationMessage = async (msg: string) => {
-        gotMessages.push(msg);
+        gotTriggerNotification ||= (msg === TRIGGER_DONE_NOTIFICATION);
         return oldInfo(msg);
       };
-      vscode.window.showWarningMessage = async (msg: string) => {
-        gotMessages.push(msg);
-        return oldWarn(msg);
-      };
-      vscode.window.showErrorMessage = async (msg: string) => {
-        gotMessages.push(msg);
-        return oldErr(msg);
-      };
 
-      // Wait until we get all the messages we wanted
-      // This is needed since the onDidEndTerminalShellExecution
-      // runs in the background
-      // TODO: Just wait until TRIGGER_DONE_NOTIFICATION is sent!
-      const msDelay = 50;
-      const wantMsgs = [
-        ...(tc.informationMessage?.expectedMessages || []),
-        ...(tc.warningMessage?.expectedMessages || []),
-        ...(tc.errorMessage?.expectedMessages || []),
-      ];
-      if (wantMsgs.length) {
+      // If relevant, wait for the terminal trigger to complete.
+      // This logic is needed (instead of relying on user interaction awaits) because
+      // the onDidEndTerminalShellExecution event is handled in the background.
+      if (tc.expectTerminalTrigger) {
+        if (!tc.informationMessage) {
+          tc.informationMessage = {};
+        }
+        if (!tc.informationMessage.expectedMessages) {
+          tc.informationMessage.expectedMessages = [];
+        }
+        tc.informationMessage.expectedMessages.push(`Terminal trigger execution completed`);
+
+        const msDelay = 50;
         tc.userInteractions.push(new Waiter(msDelay, () => {
-          return wantMsgs.length === gotMessages.length && wantMsgs.reduce((previousValue: boolean, currentValue: string) => previousValue && gotMessages.includes(currentValue), true);
+          return gotTriggerNotification;
         }, MAX_WAIT / msDelay));
       }
 
