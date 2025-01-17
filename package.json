@@ -5,7 +5,7 @@
   "publisher": "groogle",
   "version": "1.0.0",
   "engines": {
-    "vscode": "^1.81.0"
+    "vscode": "^1.93.0"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,76 @@
         "command": "what-the-beep.wrap",
         "title": "What The Beep?!: Wrap"
       }
-    ]
+    ],
+    "configuration": {
+      "properties": {
+        "what-the-beep.terminalActions": {
+          "description": "The list of actions to run on terminal events",
+          "type": "array",
+          "default": [
+            {
+              "trigger": {
+                "commandLineRegex": "# beep\\s*$"
+              },
+              "command": "what-the-beep.beep",
+              "args": {
+                "builtin": "success"
+              }
+            }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "trigger": {
+                "description": "The conditions that will cause the terminal action to execute",
+                "type": "object",
+                "properties": {
+                  "commandLineRegex": {
+                    "type": "string",
+                    "description": "The regex that, if provided, the terminal command line must match"
+                  },
+                  "exitCode": {
+                    "type": "number",
+                    "description": "Exit code of the command. If unset, then all commands will match. If -1, then all non-zero exit codes will match."
+                  }
+                }
+              },
+              "command": {
+                "description": "The VS Code command to execute (e.g. `what-the-beep.beep`)",
+                "default": "what-the-beep.beep",
+                "type": "string"
+              },
+              "args": {
+                "description": "The args to pass to the VS Code command",
+                "default": {
+                  "builtin": "laser"
+                },
+                "type": "object"
+              },
+              "notification": {
+                "description": "The VS Code notification to display",
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "The message to display"
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": [
+                      "info",
+                      "warning",
+                      "error"
+                    ],
+                    "description": "The VS Code notification severity"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
@@ -48,7 +117,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
-    "@types/vscode": "^1.81.0",
+    "@types/vscode": "^1.93.0",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
     "@vscode/test-cli": "^0.0.8",

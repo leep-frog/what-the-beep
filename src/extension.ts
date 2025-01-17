@@ -72,11 +72,8 @@ function getBeepFile(context: vscode.ExtensionContext, args?: BeepArgs) {
 async function beep(context: vscode.ExtensionContext, args?: BeepArgs) {
   const filepath = getBeepFile(context, args);
   if (!filepath) {
+    // getBeepFile is responsible for outputting message
     return;
-  }
-
-  if (process.env.TEST_MODE) {
-    vscode.window.showInformationMessage(`Playing audio file: ${filepath}`);
   }
 
   try {
@@ -86,6 +83,10 @@ async function beep(context: vscode.ExtensionContext, args?: BeepArgs) {
         vscode.window.showErrorMessage(`Failed to play audio file: ${error}`);
       }
     );
+
+    if (process.env.TEST_MODE) {
+      vscode.window.showInformationMessage(`Played audio file: ${filepath}`);
+    }
   } catch (error) {
     vscode.window.showErrorMessage(`Unexpected audio file error: ${error}`);
   }
@@ -100,11 +101,134 @@ async function wrap(context: vscode.ExtensionContext, args: WrapArgs) {
   );
 }
 
+interface TerminalTrigger {
+  /**
+   * If the terminal command line matches this regex, then the trigger will run.
+   */
+  commandLineRegex?: string | RegExp;
+
+  /**
+   * Exit code of the command. If unset, then all commands will match. If -1,
+   * then all non-zero exit codes will match.
+   */
+  exitCode?: number;
+}
+
+export enum NotificationSeverity {
+  INFO = 'info',
+  WARNING = 'warning',
+  ERROR = 'error',
+}
+
+interface Notification {
+  message: string;
+  severity?: NotificationSeverity;
+}
+
+export interface TerminalAction {
+  // The terminal trigger for the beep (if not provided, then fires on every command).
+  trigger?: TerminalTrigger;
+
+  // The VS Code command to execute (e.g. `what-the-beep.beep`)
+  command?: string;
+
+  // The args to pass to the VS Code command.
+  args?: any;
+
+  // VS Code notification
+  notification?: Notification;
+
+  // TODO: desktop notification
+}
+
+interface Settings {
+  terminalBeeps: TerminalAction[];
+}
+
+function triggerMatches(event: vscode.TerminalShellExecutionEndEvent, trigger?: TerminalTrigger): boolean {
+  if (!trigger) {
+    return true;
+  }
+
+  if (trigger.commandLineRegex !== undefined && !event.execution.commandLine.value.match(trigger.commandLineRegex)) {
+    return false;
+  }
+
+  if (trigger.exitCode !== undefined) {
+
+    console.log(`TRIGGER EXIT CODE: ${trigger.exitCode} GOT EXIT CODE: ${event.exitCode}`);
+    if (trigger.exitCode === -1) {
+      if (event.exitCode === 0) {
+        return false;
+      }
+    } else if (trigger.exitCode !== event.exitCode) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function runTerminalAction(context: vscode.ExtensionContext, terminalAction: TerminalAction) {
+
+  // Run the alert first as the `await beep` can potentially take a while (if we ever await either of these)
+  if (terminalAction.notification) {
+    switch (terminalAction.notification.severity) {
+      case NotificationSeverity.INFO:
+      case undefined:
+        vscode.window.showInformationMessage(terminalAction.notification.message);
+        break;
+      case NotificationSeverity.WARNING:
+        vscode.window.showWarningMessage(terminalAction.notification.message);
+        break;
+      case NotificationSeverity.ERROR:
+        vscode.window.showErrorMessage(terminalAction.notification.message);
+        break;
+      default:
+        vscode.window.showErrorMessage(`Unknown notification severity: ${terminalAction.notification.severity}`);
+        break;
+    }
+  }
+
+  if (terminalAction.command) {
+    await vscode.commands.executeCommand(terminalAction.command, terminalAction.args);
+  } else if (terminalAction.args) {
+    vscode.window.showErrorMessage(`what-the-beep.terminalAction.args was provided, but no what-the-beep.terminalAction.command was!`);
+  }
+}
+
 export function activate(context: vscode.ExtensionContext) {
+
+  let terminalActions: TerminalAction[] = [];
+
+  function reloadSettings() {
+    const config = vscode.workspace.getConfiguration("what-the-beep");
+    terminalActions = config.get<TerminalAction[]>("terminalActions", []);
+    // TODO: Remove below log
+    console.log(`Reloaded what-the-beep settings: ${JSON.stringify(terminalActions)}`);
+  }
+
+  reloadSettings();
 
   context.subscriptions.push(
     vscode.commands.registerCommand('what-the-beep.beep', async (args?: BeepArgs) => beep(context, args)),
     vscode.commands.registerCommand('what-the-beep.wrap', async (args: WrapArgs) => wrap(context, args)),
+    vscode.workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration("what-the-beep")) {
+        reloadSettings();
+      }
+    }),
+    vscode.window.onDidEndTerminalShellExecution(async (event) => {
+      for (const terminalAction of terminalActions) {
+        if (triggerMatches(event, terminalAction.trigger)) {
+          await runTerminalAction(context, terminalAction);
+        }
+      }
+
+      if (process.env.TEST_MODE) {
+        vscode.window.showInformationMessage(`Terminal trigger execution completed`);
+      }
+    }),
   );
 }
 
