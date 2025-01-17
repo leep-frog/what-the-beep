@@ -4,6 +4,7 @@
   "description": "Play audio alerts",
   "publisher": "groogle",
   "version": "1.0.0",
+  "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"
   },

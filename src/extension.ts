@@ -1,5 +1,6 @@
 import { existsSync } from 'fs';
 import * as vscode from 'vscode';
+import path = require('path');
 const sound = require("sound-play");
 const notifier = require('node-notifier');
 
@@ -176,7 +177,7 @@ function triggerMatches(event: vscode.TerminalShellExecutionEndEvent, trigger?: 
   return true;
 }
 
-async function runTerminalAction(context: vscode.ExtensionContext, terminalAction: TerminalAction) {
+async function runTerminalAction(context: vscode.ExtensionContext, terminalAction: TerminalAction, logoPath: string) {
 
   // Run the alert first as the `await beep` can potentially take a while (if we ever await either of these)
   if (terminalAction.notification) {
@@ -206,8 +207,7 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
     notifier.notify({
       title: terminalAction.desktopNotification.title,
       message: terminalAction.desktopNotification.message,
-
-      icon: `C:\\Users\\gleep\\Desktop\\Coding\\vs-code\\termin-all-or-nothing\\logo.png`,
+      icon: logoPath,
     });
   }
 
@@ -221,6 +221,8 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
 export function activate(context: vscode.ExtensionContext) {
 
   let terminalActions: TerminalAction[] = [];
+
+  const logoPath = path.join(context.extensionUri.fsPath, 'logo.png');
 
   function reloadSettings() {
     const config = vscode.workspace.getConfiguration("what-the-beep");
@@ -240,7 +242,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.onDidEndTerminalShellExecution(async (event) => {
       for (const terminalAction of terminalActions) {
         if (triggerMatches(event, terminalAction.trigger)) {
-          await runTerminalAction(context, terminalAction);
+          await runTerminalAction(context, terminalAction, logoPath);
         }
       }
 
