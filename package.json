@@ -76,6 +76,20 @@
                 },
                 "type": "object"
               },
+              "desktopNotification": {
+                "description": "The desktop notification to display",
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "description": "The desktop notification title",
+                    "type": "string"
+                  },
+                  "message": {
+                    "description": "The desktop notification message",
+                    "type": "string"
+                  }
+                }
+              },
               "notification": {
                 "description": "The VS Code notification to display",
                 "type": "object",
@@ -130,6 +144,7 @@
   },
   "dependencies": {
     "@leep-frog/vscode-test-stubber": "^2.0.2",
+    "node-notifier": "^10.0.1",
     "sound-play": "^1.1.0"
   }
 }

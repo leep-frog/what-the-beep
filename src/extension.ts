@@ -1,6 +1,7 @@
 import { existsSync } from 'fs';
 import * as vscode from 'vscode';
 const sound = require("sound-play");
+const notifier = require('node-notifier');
 
 enum BuiltinBeep {
   // All built-in sounds were obtained from the below link:
@@ -125,6 +126,11 @@ interface Notification {
   severity?: NotificationSeverity;
 }
 
+interface DesktopNotification {
+  title?: string;
+  message?: string;
+}
+
 export interface TerminalAction {
   // The terminal trigger for the beep (if not provided, then fires on every command).
   trigger?: TerminalTrigger;
@@ -138,7 +144,8 @@ export interface TerminalAction {
   // VS Code notification
   notification?: Notification;
 
-  // TODO: desktop notification
+  // Desktop notification
+  desktopNotification?: DesktopNotification;
 }
 
 interface Settings {
@@ -190,6 +197,20 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
     }
   }
 
+  if (terminalAction.desktopNotification) {
+
+    if (process.env.TEST_MODE) {
+      vscode.window.showInformationMessage(`Desktop Notification: title=${terminalAction.desktopNotification.title}; message=${terminalAction.desktopNotification.message}`);
+    }
+
+    notifier.notify({
+      title: terminalAction.desktopNotification.title,
+      message: terminalAction.desktopNotification.message,
+
+      icon: `C:\\Users\\gleep\\Desktop\\Coding\\vs-code\\termin-all-or-nothing\\logo.png`,
+    });
+  }
+
   if (terminalAction.command) {
     await vscode.commands.executeCommand(terminalAction.command, terminalAction.args);
   } else if (terminalAction.args) {
@@ -204,8 +225,6 @@ export function activate(context: vscode.ExtensionContext) {
   function reloadSettings() {
     const config = vscode.workspace.getConfiguration("what-the-beep");
     terminalActions = config.get<TerminalAction[]>("terminalActions", []);
-    // TODO: Remove below log
-    console.log(`Reloaded what-the-beep settings: ${JSON.stringify(terminalActions)}`);
   }
 
   reloadSettings();

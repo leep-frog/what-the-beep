@@ -296,6 +296,27 @@ const testCases: TestCase[] = [
     expectTerminalTrigger: true,
   },
   {
+    name: "[TerminalAction] Desktop notifies",
+    settings: wtbSettings([
+      {
+        desktopNotification: {
+          title: "WTB",
+          message: "Test",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        `Desktop Notification: title=WTB; message=Test`,
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
     name: "[TerminalAction] Beeps",
     settings: wtbSettings([
       {
@@ -317,12 +338,16 @@ const testCases: TestCase[] = [
     expectTerminalTrigger: true,
   },
   {
-    name: "[TerminalAction] Notifies and beeps",
+    name: "[TerminalAction] Notifies, desktop notifies, and beeps",
     settings: wtbSettings([
       {
         notification: {
           message: "hi",
           severity: NotificationSeverity.WARNING,
+        },
+        desktopNotification: {
+          title: "Some Title",
+          message: "some message",
         },
         command: 'what-the-beep.beep',
         args: {
@@ -336,6 +361,7 @@ const testCases: TestCase[] = [
     ],
     informationMessage: {
       expectedMessages: [
+        `Desktop Notification: title=Some Title; message=some message`,
         `Played audio file: ${mediaFile('success.mp3')}`,
       ],
     },
@@ -635,6 +661,7 @@ const testCases: TestCase[] = [
     },
     expectTerminalTrigger: true,
   },
+  /* Useful for commenting out tests. */
 ];
 
 suite('Extension Test Suite', () => {
