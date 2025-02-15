@@ -8,12 +8,19 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+coverage/**
+
+# Bundling was causing issues due to node-notifier using pre-built binaries
+# (which aren't included in bundling and wasn't working when adding just
+# node-notifier in esbuild `external` flag; that required unbundling at least a
+# few of its dependencies, which I didn't want to be responsible for keeping
+# track of and could cause frequent issues when updating node-notifier).
+# Because of this, the below ignores were commented out.
 
 # Below items are removed from vsix building for bundling reasons
 # bundled-out is used for packaging,
-out/**
-node_modules/**
-coverage/**
+# out/**
 
 # Re-add this since we don't bundle it.
-!node_modules/node-notifier/**
+# node_modules/**
+# !node_modules/node-notifier/**
