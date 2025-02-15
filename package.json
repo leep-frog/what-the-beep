@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"
@@ -119,7 +119,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "esbuild": "npm run esbuild-base -- --sourcemap",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=bundled-out/extension.js --external:vscode --format=cjs --platform=node",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=bundled-out/extension.js --external:vscode --external:node-notifier --format=cjs --platform=node",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "lint": "eslint src --fix --ext ts",
     "pretest": "npm run compile && npm run esbuild",
