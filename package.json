@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"

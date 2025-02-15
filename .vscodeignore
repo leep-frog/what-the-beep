@@ -14,3 +14,6 @@ vsc-extension-quickstart.md
 out/**
 node_modules/**
 coverage/**
+
+# Re-add this since we don't bundle it.
+!node_modules/node-notifier/**
