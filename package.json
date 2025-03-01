@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"
@@ -140,15 +140,15 @@
     "@typescript-eslint/parser": "^6.4.1",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.3.9",
-    "esbuild": "^0.20.1",
+    "esbuild": "^0.25.0",
     "eslint": "^8.47.0",
     "glob": "^10.3.3",
     "mocha": "^10.2.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@leep-frog/sound-play": "^1.2.2",
     "@leep-frog/vscode-test-stubber": "^2.0.2",
-    "node-notifier": "^10.0.1",
-    "sound-play": "^1.1.0"
+    "node-notifier": "^10.0.1"
   }
 }

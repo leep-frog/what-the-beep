@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
 import * as vscode from 'vscode';
 import path = require('path');
-const sound = require("sound-play");
+const sound = require("@leep-frog/sound-play");
 const notifier = require('node-notifier');
 
 enum BuiltinBeep {
