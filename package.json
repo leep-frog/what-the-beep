@@ -148,7 +148,7 @@
   },
   "dependencies": {
     "@leep-frog/sound-play": "^1.2.5",
-    "@leep-frog/vscode-test-stubber": "^2.0.2",
+    "@leep-frog/vscode-test-stubber": "^2.0.5",
     "node-notifier": "^10.0.1"
   }
 }
