@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.93.0"
@@ -147,7 +147,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@leep-frog/sound-play": "^1.2.4",
+    "@leep-frog/sound-play": "^1.2.5",
     "@leep-frog/vscode-test-stubber": "^2.0.2",
     "node-notifier": "^10.0.1"
   }
