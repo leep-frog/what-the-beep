@@ -79,7 +79,7 @@ async function beep(context: vscode.ExtensionContext, args?: BeepArgs) {
   }
 
   try {
-    await sound.play(filepath).then(
+    await sound.play(filepath, 1).then(
       undefined,
       (error: any) => {
         vscode.window.showErrorMessage(`Failed to play audio file: ${error}`);
