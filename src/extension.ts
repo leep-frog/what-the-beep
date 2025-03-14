@@ -210,6 +210,7 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
       title: terminalAction.desktopNotification.title,
       message: terminalAction.desktopNotification.message,
       icon: logoPath,
+      sound: false,
     });
   }
 
