@@ -1,19 +1,72 @@
 # What The Beep?!
 
-This extension provides the capability to play an audio file on registered key
-presses or, more notably, as a notification mechanism with VS Code tooling.
+This extension provides the capability to play an audio file and send
+VS Code and/or desktop notifications after built-in VS Code events, including:
 
-## Supported Audio Files
+* [Terminal Events](#beep-via-terminal-event)
+* [Other Extension Actions](#beep-via-extensions)
+* [Keybindings](#beep-via-keybinding)
 
-This extension uses the [NodeJS sound-play](https://www.npmjs.com/package/sound-play)
-package under the hood and, therefore, supports all audio extensions supported
-by that library.
+### Beep via Terminal Event
 
-Currently, it supports `.mp3`, `.wav`, and other extension files (depending on OS type).
+Beeps and notifications can be triggered via terminal events. Simply
+configure the `what-the-beep.terminalActions` setting:
 
-Only Windows and Mac OS are currently supported.
+```json
+{
+  "what-the-beep.terminalActions": [
+    {
+      // Any combination/subset of the following fields can be set. Their
+      // names are self-explanatory and VS Code setting auto-completion
+      // will provide useful hints on how to configure each of these values.
+      "trigger": ...,
+      "desktopNotification": ...,
+      "notification": ...,
+    }
+  ],
+},
+```
 
-## Usage
+The above configuration will cause the default beep to be played (along
+with any other notification actions). However, you can also configure
+other beeps and actions to be triggered by terminal events:
+
+```json
+{
+  "what-the-beep.terminalActions": [
+    // Beeps with a different builtin sound
+    {
+      "trigger": ...,
+      "command": "what-the-beep.beep",
+      "args": {
+        "builtin": "error",
+      }
+    },
+    // Runs a different VS Code command for the given trigger
+    {
+      "trigger": ...,
+      "command": "workbench.action.terminal.copyLastCommandOutput",
+    }
+  ],
+},
+```
+
+### Beep via Extensions
+
+Simply use the provided command in your workflow or other extension logic
+to play these audio files:
+
+```typescript
+// Play a built-in audio sound
+vscode.commands.executeCommand(`what-the-beep.beep`, {
+  builtin: 'error',
+});
+
+// Play a provided audio file
+vscode.commands.executeCommand(`what-the-beep.beep`, {
+  file: '/path/to/file.mp3'
+});
+```
 
 ### Beep via Keybinding
 
@@ -48,19 +101,12 @@ See the below `keybindings.json` file for example usage:
 }
 ```
 
-### Beep via Automated Processes
+## Supported Audio Files
 
-Simply use the provided command in your workflow or other extension logic
-to play these audio files:
+This extension uses the [NodeJS sound-play](https://www.npmjs.com/package/sound-play)
+package under the hood and, therefore, supports all audio extensions supported
+by that library.
 
-```typescript
-// Play a built-in audio sound
-vscode.commands.executeCommand(`what-the-beep.beep`, {
-  builtin: 'error',
-});
+Currently, it supports `.mp3`, `.wav`, and other extension files (depending on OS type).
 
-// Play a provided audio file
-vscode.commands.executeCommand(`what-the-beep.beep`, {
-  file: '/path/to/file.mp3'
-});
-```
+Only Windows and Mac OS are currently supported.
