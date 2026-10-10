@@ -3,10 +3,10 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "icon": "logo.png",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.138.0"
   },
   "repository": {
     "type": "git",
@@ -91,6 +91,14 @@
                   "message": {
                     "description": "The desktop notification message",
                     "type": "string"
+                  },
+                  "duration": {
+                    "description": "How long the desktop notification stays on screen (Windows only). `short` is ~7 seconds and `long` is ~25 seconds.",
+                    "type": "string",
+                    "enum": [
+                      "short",
+                      "long"
+                    ]
                   }
                 }
               },
@@ -135,7 +143,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
-    "@types/vscode": "^1.93.0",
+    "@types/vscode": "~1.138.0",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
     "@vscode/test-cli": "^0.0.8",
@@ -146,9 +154,10 @@
     "mocha": "^10.2.0",
     "typescript": "^5.1.6"
   },
+  "//": "TODO: Change node-notifier from a GitHub commit to a version number once a release including https://github.com/mikaelbr/node-notifier/pull/470 (the `duration` option) is published to npm (11.0.0 does not include it).",
   "dependencies": {
     "@leep-frog/sound-play": "^1.2.5",
-    "@leep-frog/vscode-test-stubber": "^2.0.5",
-    "node-notifier": "^10.0.1"
+    "@leep-frog/vscode-test-stubber": "^2.0.7",
+    "node-notifier": "github:mikaelbr/node-notifier#b50f93976b990d7ad63ca5c8810fb751979dbb52"
   }
 }

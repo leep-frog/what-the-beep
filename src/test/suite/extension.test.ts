@@ -1,7 +1,7 @@
 import { cmd, SimpleTestCase, SimpleTestCaseProps, UserInteraction, Waiter } from '@leep-frog/vscode-test-stubber';
 import { writeFileSync } from 'fs';
 import * as vscode from 'vscode';
-import { NotificationSeverity, TerminalAction } from '../../extension';
+import { DesktopNotificationDuration, NotificationSeverity, TerminalAction } from '../../extension';
 import path = require('path');
 
 function mediaFile(filename: string): string {
@@ -412,6 +412,28 @@ const testCases: TestCase[] = [
     informationMessage: {
       expectedMessages: [
         `Desktop Notification: title=WTB; message=Test`,
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] Desktop notifies with duration",
+    settings: wtbSettings([
+      {
+        desktopNotification: {
+          title: "WTB",
+          message: "Test",
+          duration: DesktopNotificationDuration.LONG,
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        `Desktop Notification: title=WTB; message=Test; duration=long`,
       ],
     },
     expectTerminalTrigger: true,

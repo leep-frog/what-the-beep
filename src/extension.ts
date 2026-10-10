@@ -127,9 +127,16 @@ interface Notification {
   severity?: NotificationSeverity;
 }
 
+export enum DesktopNotificationDuration {
+  SHORT = 'short',
+  LONG = 'long',
+}
+
 interface DesktopNotification {
   title?: string;
   message?: string;
+  // How long the notification stays on screen (Windows only).
+  duration?: DesktopNotificationDuration;
 }
 
 export interface TerminalAction {
@@ -203,7 +210,8 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
     actionRun = true;
 
     if (process.env.TEST_MODE) {
-      vscode.window.showInformationMessage(`Desktop Notification: title=${terminalAction.desktopNotification.title}; message=${terminalAction.desktopNotification.message}`);
+      const durationSuffix = terminalAction.desktopNotification.duration ? `; duration=${terminalAction.desktopNotification.duration}` : '';
+      vscode.window.showInformationMessage(`Desktop Notification: title=${terminalAction.desktopNotification.title}; message=${terminalAction.desktopNotification.message}${durationSuffix}`);
     }
 
     notifier.notify({
@@ -211,6 +219,7 @@ async function runTerminalAction(context: vscode.ExtensionContext, terminalActio
       message: terminalAction.desktopNotification.message,
       icon: logoPath,
       sound: false,
+      duration: terminalAction.desktopNotification.duration,
     });
   }
 
