@@ -3,7 +3,7 @@
   "displayName": "What The Beep?!",
   "description": "Play audio alerts",
   "publisher": "groogle",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "icon": "logo.png",
   "engines": {
     "vscode": "^1.138.0"
@@ -65,6 +65,21 @@
                   "exitCode": {
                     "type": "number",
                     "description": "Exit code of the command. If unset, then all commands will match. If -1, then all non-zero exit codes will match."
+                  },
+                  "windowFocusBehavior": {
+                    "type": "string",
+                    "description": "Whether the action runs based on the VS Code window's focus state when the command completes",
+                    "default": "always",
+                    "enum": [
+                      "always",
+                      "onlyWhenFocused",
+                      "onlyWhenUnfocused"
+                    ],
+                    "enumDescriptions": [
+                      "Run the action regardless of whether the VS Code window is focused",
+                      "Only run the action when the VS Code window is focused",
+                      "Only run the action when the VS Code window is not focused"
+                    ]
                   }
                 }
               },

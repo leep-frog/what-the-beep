@@ -114,6 +114,26 @@ interface TerminalTrigger {
    * then all non-zero exit codes will match.
    */
   exitCode?: number;
+
+  /**
+   * Whether to match based on the VS Code window's focus state when the command
+   * completes. If unset, then all commands will match.
+   */
+  windowFocusBehavior?: WindowFocusBehavior;
+}
+
+export enum WindowFocusBehavior {
+  ALWAYS = 'always',
+  ONLY_WHEN_FOCUSED = 'onlyWhenFocused',
+  ONLY_WHEN_UNFOCUSED = 'onlyWhenUnfocused',
+}
+
+function windowFocused(): boolean {
+  // The test window's real focus state can't be controlled, so tests set it via an env variable.
+  if (process.env.TEST_MODE && process.env.TEST_WINDOW_FOCUSED !== undefined) {
+    return process.env.TEST_WINDOW_FOCUSED === 'true';
+  }
+  return vscode.window.state.focused;
 }
 
 export enum NotificationSeverity {
@@ -177,6 +197,19 @@ function triggerMatches(event: vscode.TerminalShellExecutionEndEvent, trigger?: 
     } else if (trigger.exitCode !== event.exitCode) {
       return false;
     }
+  }
+
+  switch (trigger.windowFocusBehavior) {
+    case WindowFocusBehavior.ONLY_WHEN_FOCUSED:
+      if (!windowFocused()) {
+        return false;
+      }
+      break;
+    case WindowFocusBehavior.ONLY_WHEN_UNFOCUSED:
+      if (windowFocused()) {
+        return false;
+      }
+      break;
   }
 
   return true;

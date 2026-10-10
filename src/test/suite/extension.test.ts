@@ -1,7 +1,7 @@
 import { cmd, SimpleTestCase, SimpleTestCaseProps, UserInteraction, Waiter } from '@leep-frog/vscode-test-stubber';
 import { writeFileSync } from 'fs';
 import * as vscode from 'vscode';
-import { DesktopNotificationDuration, NotificationSeverity, TerminalAction } from '../../extension';
+import { DesktopNotificationDuration, NotificationSeverity, TerminalAction, WindowFocusBehavior } from '../../extension';
 import path = require('path');
 
 function mediaFile(filename: string): string {
@@ -22,6 +22,8 @@ interface TestCase extends SimpleTestCaseProps {
   name: string;
   expectTerminalTrigger?: boolean;
   settings?: any;
+  // Whether the VS Code window is considered focused (defaults to true).
+  windowFocused?: boolean;
 }
 
 function defaultTerminalActions(): TerminalAction[] {
@@ -857,6 +859,143 @@ const testCases: TestCase[] = [
     },
     expectTerminalTrigger: true,
   },
+  {
+    name: "[TerminalAction] [WindowFocusBehavior: unset] Triggers when window is not focused",
+    windowFocused: false,
+    settings: wtbSettings([
+      {
+        notification: {
+          message: "hello there",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        "hello there",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] [WindowFocusBehavior: always] Triggers when window is not focused",
+    windowFocused: false,
+    settings: wtbSettings([
+      {
+        trigger: {
+          windowFocusBehavior: WindowFocusBehavior.ALWAYS,
+        },
+        notification: {
+          message: "hello there",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        "hello there",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] [WindowFocusBehavior: onlyWhenUnfocused] Does not trigger when window is focused",
+    settings: wtbSettings([
+      {
+        trigger: {
+          windowFocusBehavior: WindowFocusBehavior.ONLY_WHEN_UNFOCUSED,
+        },
+        notification: {
+          message: "hello there",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] [WindowFocusBehavior: onlyWhenUnfocused] Triggers when window is not focused",
+    windowFocused: false,
+    settings: wtbSettings([
+      {
+        trigger: {
+          windowFocusBehavior: WindowFocusBehavior.ONLY_WHEN_UNFOCUSED,
+        },
+        notification: {
+          message: "hello there",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        "hello there",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] [WindowFocusBehavior: onlyWhenFocused] Triggers when window is focused",
+    settings: wtbSettings([
+      {
+        trigger: {
+          windowFocusBehavior: WindowFocusBehavior.ONLY_WHEN_FOCUSED,
+        },
+        notification: {
+          message: "hello there",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+        "hello there",
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
+  {
+    name: "[TerminalAction] [WindowFocusBehavior: onlyWhenFocused] Does not trigger when window is not focused",
+    windowFocused: false,
+    settings: wtbSettings([
+      {
+        trigger: {
+          windowFocusBehavior: WindowFocusBehavior.ONLY_WHEN_FOCUSED,
+        },
+        notification: {
+          message: "hello there",
+        },
+      },
+    ]),
+    userInteractions: [
+      cmd('workbench.action.terminal.focus'),
+      sendSequence("echo hello\n"),
+    ],
+    informationMessage: {
+      expectedMessages: [
+      ],
+    },
+    expectTerminalTrigger: true,
+  },
   /* Useful for commenting out tests. */
 ];
 
@@ -868,6 +1007,9 @@ suite('Extension Test Suite', () => {
     test(tc.name, async () => {
 
       console.log(`============== ${tc.name} ==============`);
+
+      // The test window's real focus state depends on what the user is doing, so fake it
+      process.env.TEST_WINDOW_FOCUSED = `${tc.windowFocused ?? true}`;
 
       // Use real configuration because we need to activate reload
       tc.workspaceConfiguration = {
