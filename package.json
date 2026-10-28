@@ -169,10 +169,9 @@
     "mocha": "^10.2.0",
     "typescript": "^5.1.6"
   },
-  "//": "TODO: Change node-notifier from a GitHub commit to a version number once a release including https://github.com/mikaelbr/node-notifier/pull/470 (the `duration` option) is published to npm (11.0.0 does not include it).",
   "dependencies": {
     "@leep-frog/sound-play": "^1.2.5",
     "@leep-frog/vscode-test-stubber": "^2.0.7",
-    "node-notifier": "github:mikaelbr/node-notifier#b50f93976b990d7ad63ca5c8810fb751979dbb52"
+    "node-notifier": "^12.0.0"
   }
 }
